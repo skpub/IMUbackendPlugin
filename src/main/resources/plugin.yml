@@ -1,0 +1,4 @@
+name: IMUbackendPlugin
+version: '0.0.1'
+main: org.sk_dev.iMUbackendPlugin.IMUbackendPlugin
+api-version: '1.21'

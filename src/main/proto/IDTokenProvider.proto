@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package idtoken;
+
+service IdTokenProvider {
+    // OTP -> ID token or err
+    rpc GetToken (UserCode) returns (MaybeId);
+}
+
+message UserCode {
+    string code = 1;
+    string uuid = 2;
+}
+
+message MaybeId {
+    oneof message {
+        bytes id = 1;
+        string err = 2;
+    }
+}
