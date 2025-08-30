@@ -19,9 +19,11 @@ import java.util.logging.Level;
 
 public class QRMapRenderer extends MapRenderer {
     private BitMatrix matrix;
+    private final String imuLink;
 
-    public QRMapRenderer() throws IllegalStateException, WriterException {
+    public QRMapRenderer(String imuLink) throws IllegalStateException, WriterException {
         super(true);
+        this.imuLink = imuLink;
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
         Map<EncodeHintType,Object> hints = new HashMap();
         hints.put(EncodeHintType.MARGIN, 0);

@@ -28,7 +28,8 @@ import static net.kyori.adventure.text.format.NamedTextColor.GREEN;
 
 public class OneTimeCodeProvider implements Listener {
     private final JavaPlugin plugin;
-    private ItemStack mapItem = new ItemStack(Material.FILLED_MAP, 1);
+    private final String imuLink = System.getenv().get("IMU_WEBAPP") + "/verify";
+    private final ItemStack mapItem = new ItemStack(Material.FILLED_MAP, 1);
     private final UserCodeSet userCodeSet = UserCodeSet.getInstance();
 
     public OneTimeCodeProvider(JavaPlugin plugin) {
@@ -46,7 +47,7 @@ public class OneTimeCodeProvider implements Listener {
 
         mapView.getRenderers().clear();
         try {
-            mapView.addRenderer(new QRMapRenderer());
+            mapView.addRenderer(new QRMapRenderer(this.imuLink));
         } catch (Exception e) {
             plugin.getLogger().log(Level.SEVERE, "QR Code generation err", e);
         }
@@ -69,12 +70,11 @@ public class OneTimeCodeProvider implements Listener {
                 .build()
         );
 
-        String imuLink = System.getenv().get("IMU_WEBAPP");
         player.sendMessage(
                 text("インモラル大学へようこそ！公式サイトにログインしましょう！\n", GREEN, TextDecoration.BOLD)
                         .append(
-                                text(imuLink)
-                                        .clickEvent(ClickEvent.openUrl(imuLink))
+                                text(this.imuLink)
+                                        .clickEvent(ClickEvent.openUrl(this.imuLink))
                         )
                         .append(
                                 text("\n認証コード: " + oneTimeCode, AQUA, TextDecoration.BOLD)

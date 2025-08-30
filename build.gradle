@@ -9,7 +9,7 @@ group = 'org.sk_dev'
 version = '0.0.1'
 
 def grpcVersion = '1.75.0'
-def protobufVersion = '4.32.0'
+def protobufVersion = '4.29.0'
 def protocVersion = protobufVersion
 
 repositories {

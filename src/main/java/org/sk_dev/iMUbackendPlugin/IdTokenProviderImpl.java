@@ -4,12 +4,18 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.google.protobuf.ByteString;
 import idtoken.IDTokenProvider;
 import idtoken.IdTokenProviderGrpc;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.time.Instant;
 import java.util.UUID;
 
 public class IdTokenProviderImpl extends IdTokenProviderGrpc.IdTokenProviderImplBase {
     private final UserCodeSet userCodeSet = UserCodeSet.getInstance();
+    private final JavaPlugin plugin;
+
+    public IdTokenProviderImpl(JavaPlugin plugin) {
+        this.plugin = plugin;
+    }
 
     @Override
     public void getToken(IDTokenProvider.UserCode userCode,
@@ -40,7 +46,7 @@ public class IdTokenProviderImpl extends IdTokenProviderGrpc.IdTokenProviderImpl
                     .withIssuedAt(now)
                     .withExpiresAt(exp)
                     .withJWTId(jti)
-                    .withClaim("mc_name", userId)
+                    .withClaim("mc_name", this.plugin.getServer().getPlayer(userId).getName())
                     .sign(jwtAlg);
             ByteString idToken = ByteString.copyFromUtf8(idTokenStr);
             response = IDTokenProvider.MaybeId.newBuilder()
