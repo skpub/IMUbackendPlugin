@@ -2,7 +2,6 @@ package org.sk_dev.iMUbackendPlugin;
 
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.qrcode.QRCodeWriter;
-import idtoken.IDTokenProvider;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
@@ -30,7 +29,7 @@ public class OneTimeCodeProvider implements Listener {
     private final JavaPlugin plugin;
     private final String imuLink = System.getenv().get("IMU_WEBAPP") + "/verify";
     private final ItemStack mapItem = new ItemStack(Material.FILLED_MAP, 1);
-    private final UserCodeSet userCodeSet = UserCodeSet.getInstance();
+    private final TempCodeUserMap tempUserMap = TempCodeUserMap.getInstance();
 
     public OneTimeCodeProvider(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -64,11 +63,10 @@ public class OneTimeCodeProvider implements Listener {
                 random.nextInt(10),
                 random.nextInt(10));
 
-        userCodeSet.put(IDTokenProvider.UserCode.newBuilder()
-                .setUuid(player.getUniqueId().toString())
-                .setCode(oneTimeCode)
-                .build()
-        );
+        tempUserMap.put(oneTimeCode, new UserNameId(
+                player.getName(),
+                player.getUniqueId().toString()
+        ));
 
         player.sendMessage(
                 text("インモラル大学へようこそ！公式サイトにログインしましょう！\n", GREEN, TextDecoration.BOLD)

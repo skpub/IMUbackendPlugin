@@ -9,7 +9,6 @@ service IdTokenProvider {
 
 message UserCode {
     string code = 1;
-    string uuid = 2;
 }
 
 message MaybeId {

@@ -10,7 +10,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 public class IdTokenProviderImpl extends IdTokenProviderGrpc.IdTokenProviderImplBase {
-    private final UserCodeSet userCodeSet = UserCodeSet.getInstance();
+    private final TempCodeUserMap tempUserMap = TempCodeUserMap.getInstance();
     private final JavaPlugin plugin;
 
     public IdTokenProviderImpl(JavaPlugin plugin) {
@@ -23,7 +23,8 @@ public class IdTokenProviderImpl extends IdTokenProviderGrpc.IdTokenProviderImpl
 
         IDTokenProvider.MaybeId response;
 
-        if (!userCodeSet.contains(userCode)) {
+        UserNameId uni = tempUserMap.get(userCode.getCode());
+        if (uni == null) {
             response = IDTokenProvider.MaybeId.newBuilder()
                     .setErr("Invalid OTP.")
                     .build();
@@ -32,7 +33,6 @@ public class IdTokenProviderImpl extends IdTokenProviderGrpc.IdTokenProviderImpl
             String issuer = System.getenv("IMU_ID_ISSUER");
             String audience = System.getenv("IMU_WEBAPP");
 
-            String userId = userCode.getUuid();
             Instant now = Instant.now();
             Instant exp = now.plusSeconds(300);
 
@@ -41,12 +41,12 @@ public class IdTokenProviderImpl extends IdTokenProviderGrpc.IdTokenProviderImpl
             Algorithm jwtAlg = Algorithm.HMAC256(secret);
             String idTokenStr = JWT.create()
                     .withIssuer(issuer)
-                    .withSubject(userId)
+                    .withSubject(uni.userId())
                     .withAudience(audience)
                     .withIssuedAt(now)
                     .withExpiresAt(exp)
                     .withJWTId(jti)
-                    .withClaim("mc_name", this.plugin.getServer().getPlayer(userId).getName())
+                    .withClaim("mc_name", uni.userName())
                     .sign(jwtAlg);
             ByteString idToken = ByteString.copyFromUtf8(idTokenStr);
             response = IDTokenProvider.MaybeId.newBuilder()
@@ -54,7 +54,7 @@ public class IdTokenProviderImpl extends IdTokenProviderGrpc.IdTokenProviderImpl
                     .build();
 
             // DEACTIVATE (SECURITY)
-            userCodeSet.remove(userCode);
+            tempUserMap.remove(userCode.getCode());
         }
         responseObserver.onNext(response);
         responseObserver.onCompleted();
